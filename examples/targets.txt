@@ -1,0 +1,2 @@
+# Only add assets you are explicitly authorized to assess.
+https://example.com

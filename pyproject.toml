@@ -4,10 +4,19 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "bgxteam-bbh"
-version = "1.0.0"
-description = "Database-free, scope-first Telegram security research assistant"
+version = "2.0.0"
+description = "Database-free, scope-first security assessment automation toolkit"
 requires-python = ">=3.11"
 dependencies = []
+
+[project.scripts]
+bgx = "bgx:main"
+
+[tool.setuptools]
+py-modules = ["bgx", "bot"]
+
+[tool.setuptools.packages.find]
+include = ["core*", "findings*", "integrations*", "policies*", "reports*", "storage*"]
 
 [project.optional-dependencies]
 bot = ["aiogram>=3.13,<4"]

@@ -1,0 +1,7 @@
+{
+  "domains": ["example.com"],
+  "networks": [],
+  "schemes": ["https"],
+  "ports": [443],
+  "allow_private_lab": false
+}
