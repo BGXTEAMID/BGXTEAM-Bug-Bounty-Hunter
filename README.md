@@ -1,20 +1,6 @@
 
-## Telegram Mini App + Cybersecurity Dashboard
+## Tool runner defensif v2.1
 
-Versi ini juga menyertakan `miniapp/`, sebuah Telegram Mini App dengan dashboard Cybersecurity Command Center. Bot Python existing menjadi entry point melalui `/app`; set `MINI_APP_URL` ke URL HTTPS aplikasi yang sudah dipublish. Mini App memvalidasi `Telegram.WebApp.initData` menggunakan HMAC server-side, memakai file-based JSON store, dan tetap default-deny terhadap scope.
+Mini App sekarang memiliki tool runner backend nyata: `Offline Scope Audit` menyelesaikan validasi target/scope tanpa network, sedangkan `Safe HTTP Baseline` melakukan satu bounded HTTPS GET untuk target yang sudah diotorisasi. Runner memakai DNS/IP guard, menolak private/reserved/link-local/multicast address, menggunakan IP hasil resolve dengan SNI/Host, tidak mengikuti redirect, serta membatasi timeout dan body. Active HTTP tidak dapat dijalankan dari preview browser dan membutuhkan sesi Telegram tervalidasi plus konfirmasi otorisasi.
 
-Jalankan preview dashboard secara lokal:
-
-```bash
-cd miniapp
-DEV_PREVIEW=true npm start
-```
-
-Production harus menggunakan `DEV_PREVIEW=false`, `TELEGRAM_BOT_TOKEN`, dan URL HTTPS. Jalankan bot dari root repository setelah `MINI_APP_URL` diisi:
-
-```bash
-pip install -e '.[bot]'
-python bot.py
-```
-
-Dashboard menyediakan overview, jobs, authorized scope, profil sesi Telegram, dry-run assessment, active HTTP dengan konfirmasi eksplisit, polling status, dan detail findings. Fitur exploit, brute force, credential attack, persistence, evasion, dan destructive testing tidak disediakan.
+Defense-in-depth tambahan meliputi CSP, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, static path confinement, body cap, active concurrency cap, cooldown per operator, audit activity, dan safe failure state. Ini adalah hardening berlapis, bukan jaminan absolut tanpa celah; production tetap membutuhkan review, dependency update, secret rotation, monitoring, dan pengujian staging berizin.
