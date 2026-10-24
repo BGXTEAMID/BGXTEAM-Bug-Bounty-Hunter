@@ -1,0 +1,27 @@
+import { FormEvent, useEffect, useState } from 'react';
+
+type View = 'overview' | 'jobs' | 'scopes' | 'profile';
+type Architecture = { frontend: string; api: string; bot: string; native_engine: string; storage: string; database: boolean };
+type Tool = { id: string; execution: string; network_used: boolean | string };
+
+async function getJson<T>(path: string, options?: RequestInit): Promise<T> {
+  const initData = (window as Window & { Telegram?: { WebApp?: { initData?: string } } }).Telegram?.WebApp?.initData || '';
+  const response = await fetch(path, { headers: { 'content-type': 'application/json', ...(initData ? { 'x-telegram-init-data': initData } : {}), ...(options?.headers || {}) }, ...options });
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(body.detail?.error || body.detail || body.error || `Request failed (${response.status})`);
+  return body as T;
+}
+
+export function App() {
+  const [view, setView] = useState<View>('overview');
+  const [architecture, setArchitecture] = useState<Architecture | null>(null);
+  const [tools, setTools] = useState<Tool[]>([]);
+  const [target, setTarget] = useState('');
+  const [scopeTargets, setScopeTargets] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState('');
+  useEffect(() => { Promise.all([getJson<Architecture>('/api/architecture'), getJson<{ tools: Tool[] }>('/api/tools')]).then(([arch, catalog]) => { setArchitecture(arch); setTools(catalog.tools); }).catch((error: Error) => setMessage(error.message)); }, []);
+  async function runNativeAudit(event?: FormEvent) { event?.preventDefault(); if (!target.trim() || !scopeTargets.trim()) { setMessage('Target dan scope wajib diisi.'); return; } setBusy(true); setMessage(''); try { const result = await getJson<{ result: { network_used: boolean }; audit: { operation: string } }>('/api/engine/analyze', { method: 'POST', headers: { 'x-operator-role': 'operator' }, body: JSON.stringify({ operation: 'scope_audit', target: target.trim(), scope_targets: scopeTargets.split(',').map((value) => value.trim()).filter(Boolean) }) }); setMessage(`${result.audit.operation} completed · network used: ${result.result.network_used ? 'yes' : 'no'}`); } catch (error) { setMessage((error as Error).message); } finally { setBusy(false); } }
+  const title = { overview: 'Security command center', jobs: 'Assessment jobs', scopes: 'Authorized scope', profile: 'Operator profile' }[view];
+  return <div className="shell"><aside><div className="brand"><span className="mark">⌘</span><div><b>BGXTEAM</b><small>SECURITY PLATFORM</small></div></div><div className="session"><span className="dot" />Platform operator<small>authenticated boundary</small></div><nav>{(['overview', 'jobs', 'scopes', 'profile'] as View[]).map((item) => <button type="button" className={view === item ? 'active' : ''} onClick={() => setView(item)} key={item}>{item}</button>)}</nav><div className="aside-note">Default-deny policy<br />Native execution bounded</div></aside><main><header><div><span className="eyebrow">BGXTEAM / PLATFORM v3</span><h1>{title}</h1></div><span className="badge">NO DATABASE</span></header>{message && <div className="notice">{message}</div>}{view === 'overview' && <><section className="hero"><span className="eyebrow">DEFENSIVE OPERATIONS</span><h2>Measure first.<br /><em>Execute with evidence.</em></h2><p>React dashboard, FastAPI policy boundary, Telegram identity, and a bounded native worker designed for authorized bug bounty operations.</p><form onSubmit={runNativeAudit}><div className="field-grid"><div className="field"><label htmlFor="target">Authorized target URL</label><input id="target" value={target} onChange={(event) => setTarget(event.target.value)} placeholder="https://authorized.example" /></div><div className="field"><label htmlFor="scope">Scope domains</label><input id="scope" value={scopeTargets} onChange={(event) => setScopeTargets(event.target.value)} placeholder="authorized.example, api.authorized.example" /></div></div><button type="submit" className="primary" disabled={busy}>{busy ? 'Running native audit…' : 'Run native scope audit'}</button></form></section><section className="cards"><article><small>API</small><strong>{architecture?.api || 'Loading…'}</strong><span>contract boundary</span></article><article><small>NATIVE ENGINE</small><strong>{architecture?.native_engine || 'Loading…'}</strong><span>JSONL worker</span></article><article><small>STORAGE</small><strong>{architecture?.storage || 'Loading…'}</strong><span>atomic local records</span></article><article><small>TOOLS</small><strong>{tools.length || 0}</strong><span>allowlisted modules</span></article></section></>}{view === 'jobs' && <section className="panel"><h2>Assessment jobs</h2><p>Jobs are submitted only after an authorized target and scope are explicitly provided.</p><button type="button" className="secondary" onClick={() => setView('overview')}>Create authorized assessment</button></section>}{view === 'scopes' && <section className="panel"><h2>Authorized scope</h2><p>All execution must be bound to an explicit operator-approved target boundary.</p><div className="scope-row"><span className="dot" />Default-deny scope gate <b>ENFORCED</b></div></section>}{view === 'profile' && <section className="panel"><h2>Operator profile</h2><p>Telegram HMAC identity and role policy remain server-side concerns.</p><div className="scope-row"><span className="dot" />Role <b>OPERATOR</b></div></section>}</main></div>;
+}

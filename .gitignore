@@ -12,3 +12,7 @@ tmp/*
 !tmp/.gitkeep
 reports/*
 artifacts/*
+frontend/node_modules/
+frontend/dist/
+frontend/tsconfig.tsbuildinfo
+engine/native/build/

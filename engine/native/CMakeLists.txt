@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.16)
+project(bgx_native_worker LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+add_executable(bgx-native-worker main.cpp)
+target_compile_options(bgx-native-worker PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
