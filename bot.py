@@ -11,12 +11,20 @@ async def main():
     try: from aiogram import Bot, Dispatcher, F
     except ImportError as exc: raise SystemExit("Optional dependency missing: install with pip install '.[bot]'") from exc
     from aiogram.filters import Command
-    from aiogram.types import Message
+    from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message, WebAppInfo
     bot, dp = Bot(cfg.token), Dispatcher()
+    app_keyboard = None
+    if cfg.mini_app_url:
+        app_keyboard = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="Open Cybersecurity Command Center", web_app=WebAppInfo(url=cfg.mini_app_url))]])
     @dp.message(Command("start", "help", "menu"))
     async def start(message: Message):
         if message.from_user is None or not cfg.authorized(message.from_user.id): return await message.answer("Akses ditolak.")
-        await message.answer("<b>BGXTEAM BUG BOUNTY HUNTER</b>\nCore aman aktif. /doctor /tools /demo /privacy\nScan produksi default-deny; scope dan persetujuan eksplisit wajib.", parse_mode="HTML")
+        await message.answer("<b>BGXTEAM BUG BOUNTY HUNTER</b>\nCore aman aktif. /doctor /tools /demo /privacy /app\nScan produksi default-deny; scope dan persetujuan eksplisit wajib.", parse_mode="HTML", reply_markup=app_keyboard)
+    @dp.message(Command("app"))
+    async def app(message: Message):
+        if message.from_user is None or not cfg.authorized(message.from_user.id): return await message.answer("Akses ditolak.")
+        if app_keyboard is None: return await message.answer("Mini App belum dikonfigurasi. Isi MINI_APP_URL pada environment bot.")
+        await message.answer("Buka Cybersecurity Command Center untuk mengelola scope dan assessment berizin.", reply_markup=app_keyboard)
     @dp.message(Command("id"))
     async def user_id(message: Message):
         if message.from_user and cfg.authorized(message.from_user.id): await message.answer(f"Telegram ID: {message.from_user.id}")

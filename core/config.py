@@ -20,6 +20,7 @@ class Config:
     allowed_ids: frozenset[int]
     admin_ids: frozenset[int]
     data_dir: Path
+    mini_app_url: str = ""
     max_jobs: int = 1
     max_rps: int = 1
     max_scan_seconds: int = 60
@@ -32,6 +33,7 @@ class Config:
                    _ids(os.getenv("ALLOWED_TELEGRAM_IDS", "")),
                    _ids(os.getenv("ADMIN_TELEGRAM_IDS", "")),
                    Path(os.getenv("DATA_DIR", "./data")).expanduser(),
+                   os.getenv("MINI_APP_URL", "").strip(),
                    _positive("MAX_CONCURRENT_JOBS", 1), _positive("MAX_REQUESTS_PER_SECOND", 1),
                    _positive("MAX_SCAN_SECONDS", 60), _positive("MAX_OUTPUT_BYTES", 1_048_576),
                    _positive("MAX_REPORT_BYTES", 5_242_880))

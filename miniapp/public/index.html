@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1020" />
+  <title>BGXTEAM Command Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark"><i></i><i></i><i></i><i></i></span><span><b>BGXTEAM</b><small>COMMAND CENTER</small></span></div>
+      <div class="session-card"><span class="status-dot"></span><div><strong id="session-name">Connecting…</strong><small id="session-mode">Verifying Telegram session</small></div></div>
+      <nav class="nav" aria-label="Primary navigation">
+        <button class="nav-item active" data-view="overview"><span>◈</span>Overview</button>
+        <button class="nav-item" data-view="jobs"><span>⌁</span>Assessment jobs</button>
+        <button class="nav-item" data-view="scopes"><span>⊙</span>Authorized scope</button>
+        <button class="nav-item" data-view="profile"><span>◎</span>Profile</button>
+      </nav>
+      <div class="sidebar-foot"><div class="mini-label">SYSTEM POSTURE</div><div class="posture"><span class="pulse"></span>Scope gate active</div><p>Every action is bounded by explicit authorization and a default-deny policy.</p></div>
+    </aside>
+    <main class="main">
+      <header class="topbar"><div><span class="eyebrow">TELEGRAM MINI APP <span class="live-dot"></span></span><h1 id="page-title">Cybersecurity command center</h1></div><div class="top-actions"><span class="preview-badge" id="session-badge">CHECKING SESSION</span><button class="icon-button" id="refresh-btn" title="Refresh data">↻</button><button class="avatar" id="profile-button">OP</button></div></header>
+      <div id="banner" class="banner hidden" role="status"></div>
+      <section id="view-overview" class="view active"></section>
+      <section id="view-jobs" class="view"></section>
+      <section id="view-scopes" class="view"></section>
+      <section id="view-profile" class="view"></section>
+    </main>
+  </div>
+  <div id="modal-root"></div>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="/app.js"></script>
+</body>
+</html>

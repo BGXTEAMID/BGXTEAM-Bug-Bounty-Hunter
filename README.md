@@ -1,91 +1,20 @@
-# BGXTEAM BUG BOUNTY HUNTER v2
 
-Toolkit automation security assessment yang **database-free**, lokal, modular, dan scope-first. Fokusnya adalah pengumpulan bukti defensif pada aset yang memang kamu punya izin untuk uji; bukan exploit framework, credential attack, stealth, atau destructive testing.
+## Telegram Mini App + Cybersecurity Dashboard
 
-## Fitur v2
+Versi ini juga menyertakan `miniapp/`, sebuah Telegram Mini App dengan dashboard Cybersecurity Command Center. Bot Python existing menjadi entry point melalui `/app`; set `MINI_APP_URL` ke URL HTTPS aplikasi yang sudah dipublish. Mini App memvalidasi `Telegram.WebApp.initData` menggunakan HMAC server-side, memakai file-based JSON store, dan tetap default-deny terhadap scope.
 
-- CLI `bgx scan` dengan mode dry-run sebagai default.
-- Active HTTP checks yang hanya berjalan dengan `--active-http`.
-- Default-deny scope policy berbasis domain, network, scheme, dan port.
-- Bounded concurrency, rate limit, timeout, ukuran body, dan output.
-- Redirect dimatikan agar target hasil redirect tidak lolos validasi awal.
-- Check defensif untuk security headers dan cookie flags.
-- Deduplication finding, secret redaction, serta output JSON, Markdown, dan HTML.
-- Scheduler file-based melalui `core.scheduler`, tanpa web app dan tanpa database.
-- Telegram entrypoint lama tetap tersedia untuk status/demo offline.
-
-## Instalasi
+Jalankan preview dashboard secara lokal:
 
 ```bash
-python3 -m venv .venv
-. .venv/bin/activate
-pip install -e '.[test]'
+cd miniapp
+DEV_PREVIEW=true npm start
 ```
 
-## Quick start aman
-
-Dry-run tidak mengirim request jaringan:
+Production harus menggunakan `DEV_PREVIEW=false`, `TELEGRAM_BOT_TOKEN`, dan URL HTTPS. Jalankan bot dari root repository setelah `MINI_APP_URL` diisi:
 
 ```bash
-python bgx.py scan --targets examples/targets.txt --scope examples/scope.json
+pip install -e '.[bot]'
+python bot.py
 ```
 
-Untuk aset yang memang sudah diotorisasi, aktifkan HTTP check secara eksplisit:
-
-```bash
-python bgx.py scan --targets examples/targets.txt \
-  --scope examples/scope.json --active-http \
-  --format html --out reports/latest.html
-```
-
-Atau gunakan domain langsung:
-
-```bash
-python bgx.py scan --targets targets.txt --domain app.example.com --active-http --format json --out reports/latest.json
-```
-
-`--scope` harus memiliki `domains` atau `networks`. Tidak ada scope berarti proses berhenti. Gunakan `networks` private hanya di lab yang kamu kontrol dan tetap review policy secara manual.
-
-## Automation schedule
-
-Format schedule sederhana:
-
-```json
-{
-  "targets": "examples/targets.txt",
-  "domains": ["example.com"],
-  "schemes": ["https"],
-  "ports": [443],
-  "active_http": false,
-  "output": "reports/scheduled-latest.json"
-}
-```
-
-Jalankan dari cron/systemd sesuai kebutuhan lokal:
-
-```bash
-python -c 'from core.scheduler import run_schedule; raise SystemExit(run_schedule("schedule.json"))'
-```
-
-## Struktur utama
-
-- `bgx.py`: CLI.
-- `core/automation.py`: runner async, rate limiter, transport bounded, checks.
-- `core/scheduler.py`: job file-based tanpa database.
-- `policies/scope.py`: policy default-deny.
-- `findings/engine.py`: normalisasi, fingerprint, dedup, priority internal.
-- `reports/generate.py`: JSON/Markdown/HTML sanitized reports.
-- `integrations/base.py`: tool detection; active external tools tetap ditolak.
-
-## Batas keamanan
-
-Tool ini tidak menjalankan Nmap, Nuclei, Hydra, John, Metasploit, brute force, exploit, payload injection, persistence, atau evasion. Semua finding adalah indikasi untuk review manusia, bukan bukti exploitability. Jangan masukkan token, cookie, password, atau data pribadi ke target list maupun chat. Network testing harus dilakukan hanya dengan otorisasi tertulis dan sesuai scope program.
-
-## Testing
-
-```bash
-python -m compileall -q .
-pytest -q
-```
-
-Jika `pytest` belum terpasang, gunakan `pip install -e '.[test]'` terlebih dahulu.
+Dashboard menyediakan overview, jobs, authorized scope, profil sesi Telegram, dry-run assessment, active HTTP dengan konfirmasi eksplisit, polling status, dan detail findings. Fitur exploit, brute force, credential attack, persistence, evasion, dan destructive testing tidak disediakan.
